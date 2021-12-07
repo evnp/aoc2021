@@ -1,0 +1,43 @@
+#!/bin/bash
+
+function advent() {
+	local PROBLEMS
+	PROBLEMS="$HOME/advent/problems/"
+
+	local SOLUTIONS
+	SOLUTIONS="$HOME/advent/solutions/"
+
+	local last
+	last="$( find "$SOLUTIONS" | sort | tail -1 )"
+  aorb="${last//[!ab]/}"
+  aorb="${aorb: -1}"
+	last="${last//[!0-9]/}"
+
+	if [[ "$1" == "next" ]]; then
+    if [[ "${aorb}" == "a" ]]; then
+      aorb="b"
+			cp "$SOLUTIONS/${last}a.exs" "$SOLUTIONS/${last}b.exs"
+    else
+		  last=$(( last + 1 ))
+      aorb="a"
+			cat <<-EOF > "$SOLUTIONS/${last}${aorb}.exs"
+			defmodule Solution do
+			  def process_line(line) do
+			    IO.puts(line)
+			  end
+
+			  def main() do
+			    File.stream!("../input/${last}")
+			    |> Enum.map(&process_line/1)
+			  end
+			end
+
+			Solution.main()
+			EOF
+    fi
+	fi
+
+	vim -o "$SOLUTIONS/${last}${aorb}.exs" "$PROBLEMS/${last}"
+}
+
+advent "$@"
